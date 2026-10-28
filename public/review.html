@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#13233f">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Review your quote</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/review.js"></script>
+</head>
+<body class="approve-page review-page">
+  <header class="topbar topbar-slim">
+    <div class="topbar-inner">
+      <span class="brand">
+        <img src="/icon.svg" alt="" width="30" height="30">
+        <span>Your<b>Quote</b></span>
+      </span>
+      <span class="top-badge" id="top-badge">Review &amp; sign</span>
+    </div>
+  </header>
+
+  <main class="approve">
+    <section class="missing card" id="missing" hidden>
+      <h1 id="missing-title">This link isn't valid</h1>
+      <p id="missing-text">Check you opened the full link from your email, or ask your contractor to send the quote again.</p>
+    </section>
+
+    <div class="approve-grid" id="approve-grid" hidden>
+      <section class="approve-doc">
+        <p class="approve-intro" id="intro"></p>
+        <div class="paper" id="paper"></div>
+      </section>
+
+      <section class="approve-sign">
+        <form class="card sign-card" id="sign-form" novalidate>
+          <h2 class="card-title"><span class="step">&#9998;</span> Accept this quote</h2>
+          <div class="sign-total"><span>Total</span><b id="sign-total" data-testid="sign-total"></b></div>
+
+          <label class="field"><span>Your full name</span><input id="signer" autocomplete="name" required></label>
+
+          <div class="seg sign-mode" role="tablist" aria-label="Signature method">
+            <button type="button" class="seg-btn" data-mode="draw" role="tab" aria-selected="true">Draw</button>
+            <button type="button" class="seg-btn" data-mode="type" role="tab" aria-selected="false">Type</button>
+          </div>
+          <div class="pad-wrap" id="pad-wrap">
+            <canvas class="pad" id="pad" data-testid="pad" aria-label="Signature pad: draw your signature"></canvas>
+            <span class="pad-hint" id="pad-hint">Sign here with your finger or mouse</span>
+            <button type="button" class="link pad-clear" id="pad-clear">Clear</button>
+          </div>
+          <div class="typed" id="typed" hidden><span id="typed-preview" class="typed-sig"></span></div>
+
+          <label class="check"><input type="checkbox" id="agree" data-testid="agree"> <span>I accept this quote, the total shown and the terms.</span></label>
+          <p class="error" id="sign-error" role="alert"></p>
+          <button class="btn btn-hivis btn-block btn-big" type="submit" id="accept" data-testid="accept">Approve quote</button>
+          <button class="link decline-link" type="button" id="decline-open" data-testid="decline-open">Decline this quote</button>
+          <div class="decline-box" id="decline-box" hidden>
+            <label class="field"><span>Reason (optional)</span><textarea id="decline-reason" rows="2" maxlength="500" placeholder="e.g. Going with another quote"></textarea></label>
+            <button class="btn btn-outline btn-block" type="button" id="decline" data-testid="decline">Decline quote</button>
+          </div>
+          <p class="notice" id="notice"><b>Simple acceptance record.</b> Your name, signature and the time are saved with this quote on your contractor's quote server. This is not a certified e-signature service.</p>
+        </form>
+
+        <div class="card done-card" id="done" hidden>
+          <div class="done-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6 11-11-1.4-1.4z"/></svg></div>
+          <h2 data-testid="approved-title">Approved</h2>
+          <p class="done-stamp" id="done-stamp" data-testid="done-stamp"></p>
+          <p class="done-total" id="done-total"></p>
+          <a class="btn btn-green btn-block btn-big" id="download-signed" data-testid="review-download-signed" href="#" download>Download signed PDF</a>
+          <p class="notice">Simple acceptance record kept on your contractor's quote server. Not a certified e-signature service.</p>
+        </div>
+
+        <div class="card declined-card" id="declined" hidden>
+          <h2 data-testid="declined-title">Declined</h2>
+          <p class="done-stamp" id="declined-stamp"></p>
+          <p>Thanks for letting us know. You won't get any more reminders about this quote.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

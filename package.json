@@ -1,0 +1,21 @@
+{
+  "name": "trades-quote-builder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Build a professional plumbing or electrical quote in under a minute, export a branded PDF, then get it approved on site or by email with automatic follow-ups.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "demo": "node server.mjs --demo",
+    "test": "node --test \"test/unit/*.test.js\"",
+    "test:e2e": "node --test --test-concurrency=1 \"test/e2e/*.test.js\"",
+    "test:all": "npm test && npm run test:e2e"
+  },
+  "devDependencies": {
+    "playwright": "1.64.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}
