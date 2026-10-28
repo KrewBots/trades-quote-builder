@@ -15,8 +15,9 @@
 //
 // Public demo (DEMO_MODE=1, see server/public-demo.js): email settings are
 // ignored (mock outbox only), storage is in memory and capped, requests are rate
-// limited per client IP (right-most X-Forwarded-For hop, TQB_TRUST_PROXY_HOPS,
-// default 1) and globally, everything is wiped on start and daily at 04:00 UTC,
+// limited per client IP and globally (client IP: the TQB_CLIENT_IP_HEADER header,
+// default X-Real-IP on Railway; else the right-most X-Forwarded-For hop,
+// TQB_TRUST_PROXY_HOPS, default 1), everything is wiped on start and daily at 04:00 UTC,
 // and every page carries a "public demo" banner. Review links use TQB_PUBLIC_URL
 // or https://$RAILWAY_PUBLIC_DOMAIN, never the request's Host header.
 import { createServer } from 'node:http';
@@ -53,6 +54,7 @@ const TYPES = {
  * @param {boolean} [opts.publicDemo] public demo lock (default DEMO_MODE=1); implies demo
  * @param {object} [opts.limits]    public demo limits (default DEMO_LIMITS; tests pass smaller ones)
  * @param {number} [opts.trustProxyHops] trusted X-Forwarded-For hops (public demo default 1, else 0)
+ * @param {string|null} [opts.clientIpHeader] header the edge sets to the client IP (public demo on Railway: x-real-ip)
  * @param {() => number} [opts.realNow] wall clock for rate limits, link TTL and the wipe (tests)
  * @param {object} [opts.email]     email config (default from env); opts.emailDeps injects fetch/connect
  * @param {number} [opts.schedulerMs] follow-up check interval (default 60 s; 0 disables the timer)
@@ -75,7 +77,9 @@ export function createAppServer(opts = {}) {
   const publicUrl = opts.publicUrl ?? (env.TQB_PUBLIC_URL || (publicDemo && env.RAILWAY_PUBLIC_DOMAIN ? `https://${env.RAILWAY_PUBLIC_DOMAIN}` : undefined));
   api = createApi({ store, mailer, clock, demo, publicUrl, publicDemo, limits: limits || undefined, limiters, realNow });
   const trustHops = opts.trustProxyHops ?? (publicDemo ? Number(env.TQB_TRUST_PROXY_HOPS ?? 1) : 0);
-  const ctx = { api, publicDemo, limiters, trustHops };
+  const ipHeader = opts.clientIpHeader !== undefined ? opts.clientIpHeader
+    : publicDemo ? (env.TQB_CLIENT_IP_HEADER || (env.RAILWAY_ENVIRONMENT_ID ? 'x-real-ip' : null)) : null;
+  const ctx = { api, publicDemo, limiters, trustHops, ipHeader };
 
   const server = createServer((req, res) => {
     handle(req, res, ctx).catch((e) => {
@@ -107,7 +111,7 @@ export function createAppServer(opts = {}) {
     if (opts.wipeSchedule !== false) schedule();
   }
   server.on('close', () => { clearInterval(timer); clearTimeout(wipeTimer); });
-  Object.assign(server, { api, store, mailer, clock, demo, publicDemo, limits, limiters });
+  Object.assign(server, { api, store, mailer, clock, demo, publicDemo, limits, limiters, ipHeader });
   return server;
 }
 
@@ -117,7 +121,7 @@ function tooMany(res, headers, isApi, { status = 429, retryAfter, message = BUSY
   else res.writeHead(status, { ...h, 'Content-Type': 'text/plain; charset=utf-8' }).end(message);
 }
 
-async function handle(req, res, { api, publicDemo, limiters, trustHops }) {
+async function handle(req, res, { api, publicDemo, limiters, trustHops, ipHeader }) {
   const headers = {
     'Content-Security-Policy': CSP,
     'Referrer-Policy': 'no-referrer',
@@ -136,7 +140,7 @@ async function handle(req, res, { api, publicDemo, limiters, trustHops }) {
     // Railway terminates TLS at its edge, so HTTPS shows up as X-Forwarded-Proto.
     if (req.headers['x-forwarded-proto'] === 'https') headers['Strict-Transport-Security'] = 'max-age=31536000';
     if (url.pathname !== '/health') {
-      req.clientIp = clientIp(req, trustHops);
+      req.clientIp = clientIp(req, trustHops, ipHeader);
       let r = limiters.requests.hit(req.clientIp);
       if (!r.ok) return tooMany(res, headers, isApi, r);
       if (req.method !== 'GET' && req.method !== 'HEAD') {

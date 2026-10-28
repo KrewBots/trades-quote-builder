@@ -117,8 +117,10 @@ set it up). On top of demo mode:
   wrong review links or owner keys per 10 min (then even right ones wait). There
   is also a global cap of 600 writes/hour. Over a limit, the API answers 429 (or 503 for the
   global cap) with "The demo is busy right now", plus `Retry-After`. The client IP
-  is the right-most `X-Forwarded-For` entry (one trusted proxy hop,
-  `TQB_TRUST_PROXY_HOPS`); entries to its left are ignored.
+  comes from the header the platform's edge sets (`TQB_CLIENT_IP_HEADER`; on
+  Railway `X-Real-IP` automatically, since Railway doesn't append to
+  `X-Forwarded-For`). Otherwise it is the right-most `X-Forwarded-For` entry (one trusted
+  proxy hop, `TQB_TRUST_PROXY_HOPS`), and entries to its left are ignored.
 - **Caps**: 1 MB request body, 1 MB logo file, JPEG images at most 400 KB and
   2000 px a side, 50 line items. The store is in memory only: 300 quotes,
   300 mock emails, 50 MB total, oldest deleted first.

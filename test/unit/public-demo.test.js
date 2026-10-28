@@ -95,6 +95,24 @@ test('client IP: only the right-most X-Forwarded-For hop is trusted', () => {
   assert.equal(clientIp(req(''), 1), '10.0.0.9');
   assert.equal(clientIp(req('1.1.1.1, 9.9.9.9'), 0), '10.0.0.9', 'no proxy trusted locally');
   assert.equal(clientIp(req('2001:db8::1'), 1), '2001:db8::1');
+  // An edge-set client IP header wins over X-Forwarded-For; a bad value falls back to the socket.
+  const withReal = (v, xff) => ({ headers: { 'x-real-ip': v, ...(xff ? { 'x-forwarded-for': xff } : {}) }, socket: { remoteAddress: '10.0.0.9' } });
+  assert.equal(clientIp(withReal('203.0.113.5', '1.1.1.1'), 1, 'x-real-ip'), '203.0.113.5');
+  assert.equal(clientIp(withReal('203.0.113.5, 1.1.1.1'), 1, 'X-Real-IP'), '10.0.0.9');
+  assert.equal(clientIp(withReal(''), 1, 'x-real-ip'), '10.0.0.9');
+});
+
+test('on Railway the client IP comes from X-Real-IP: forged X-Forwarded-For values share one bucket', async () => {
+  assert.equal(createAppServer({ publicDemo: true, schedulerMs: 0, wipeSchedule: false, env: { RAILWAY_ENVIRONMENT_ID: 'x' } }).ipHeader, 'x-real-ip');
+  assert.equal(createAppServer({ publicDemo: true, schedulerMs: 0, wipeSchedule: false, env: {} }).ipHeader, null);
+  assert.equal(createAppServer({ publicDemo: true, schedulerMs: 0, wipeSchedule: false, env: { TQB_CLIENT_IP_HEADER: 'cf-connecting-ip' } }).ipHeader, 'cf-connecting-ip');
+  const t = await start({ env: { RAILWAY_ENVIRONMENT_ID: 'x' }, trustProxyHops: undefined, limits: { writes: [3, 60_000] } });
+  try {
+    const go = (i) => t.post('/api/demo/clock', { reset: true }, { 'X-Real-IP': '203.0.113.20', 'X-Forwarded-For': `198.51.100.${i}` });
+    for (let i = 0; i < 3; i++) assert.equal((await go(i)).status, 200);
+    assert.equal((await go(9)).status, 429);
+    assert.equal((await t.post('/api/demo/clock', { reset: true }, { 'X-Real-IP': '203.0.113.21' })).status, 200, 'another client is fine');
+  } finally { await t.close(); }
 });
 
 test('rate limiter: fixed window, recovers after it, bounded memory', () => {

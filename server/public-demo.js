@@ -85,13 +85,20 @@ export function createLimiters(limits = DEMO_LIMITS, { now = Date.now } = {}) {
 }
 
 /**
- * The client IP. Behind one trusted proxy (Railway's edge), the proxy appends
- * the address it saw to X-Forwarded-For, so only the right-most `trustHops`
- * entry is trusted; anything to the left of it is client-supplied and ignored.
- * trustHops=0 (local) uses the socket address.
+ * The client IP.
+ * - ipHeader (e.g. 'x-real-ip'): a header the platform's edge sets to the client
+ *   address itself. Railway documents X-Real-IP for this and does not append to
+ *   X-Forwarded-For, so on Railway this is the only trustworthy source.
+ * - Otherwise, behind `trustHops` proxies that append to X-Forwarded-For, the
+ *   right-most `trustHops` entry; anything to its left is client-supplied.
+ * - trustHops=0 and no header (local): the socket address.
  */
-export function clientIp(req, trustHops = 0) {
+export function clientIp(req, trustHops = 0, ipHeader = null) {
   const socketIp = req.socket?.remoteAddress || 'unknown';
+  if (ipHeader) {
+    const v = String(req.headers[ipHeader.toLowerCase()] || '').trim();
+    return isIP(v) ? v : socketIp;
+  }
   if (!trustHops) return socketIp;
   const xff = String(req.headers['x-forwarded-for'] || '').split(',').map((s) => s.trim()).filter(Boolean);
   const ip = xff[xff.length - trustHops];
