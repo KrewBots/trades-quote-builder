@@ -89,8 +89,9 @@ export function jpegSize(bin) {
 export function jpegFromDataUrl(url) {
   const m = /^data:image\/jpe?g;base64,([A-Za-z0-9+/=]+)$/.exec(url || '');
   if (!m) return null;
-  const bin = atob(m[1]);
-  return jpegSize(bin) ? bin : null;
+  let bin;
+  try { bin = atob(m[1]); } catch { return null; } // malformed base64 (e.g. padding mid-string)
+  try { return jpegSize(bin) ? bin : null; } catch { return null; }
 }
 
 export class PdfDoc {

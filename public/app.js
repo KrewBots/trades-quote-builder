@@ -342,7 +342,8 @@ $('logo-input').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   e.target.value = '';
   if (!file) return;
-  if (file.size > 8 * 1024 * 1024) { toast('Logo file is too large (8 MB max).'); return; }
+  const maxLogo = config.limits?.logoFileBytes || 8 * 1024 * 1024;
+  if (file.size > maxLogo) { toast(`Logo file is too large (${Math.round(maxLogo / 1024 / 1024)} MB max).`); return; }
   try {
     pendingLogo = await toJpegDataUrl(await readFileAsDataUrl(file), 480);
     $('logo-preview').src = pendingLogo;

@@ -102,17 +102,49 @@ if this server is reachable from their device; public hosting is out of scope.
 - Fonts (Barlow, Barlow Condensed, Caveat; SIL OFL, licences in
   `public/fonts/`, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)) are
   bundled. Nothing loads from a CDN. No analytics or tracking.
-- If you put the server on the public internet, add rate limiting, a request
-  size cap and scheduled data clean-up first. The server has none of these
-  built in.
+- Don't put a normal instance on the public internet. For a public demo, use
+  the public demo mode below.
+
+## Public demo mode (`DEMO_MODE=1`)
+
+For running an open demo on the internet (the `Dockerfile` and `railway.json`
+set it up). On top of demo mode:
+
+- **No real email, ever.** Every email setting (`TQB_EMAIL_*`, `RESEND_API_KEY`,
+  `SMTP_*`) is ignored. Mail only goes to the mock Outbox, and each visitor's
+  Outbox only shows the emails their own browser sent (a random session cookie).
+- **Rate limits** per client IP: 240 requests/min, 20 writes/5 min, and 20
+  wrong review links or owner keys per 10 min (then even right ones wait). There
+  is also a global cap of 600 writes/hour. Over a limit, the API answers 429 (or 503 for the
+  global cap) with "The demo is busy right now", plus `Retry-After`. The client IP
+  is the right-most `X-Forwarded-For` entry (one trusted proxy hop,
+  `TQB_TRUST_PROXY_HOPS`); entries to its left are ignored.
+- **Caps**: 1 MB request body, 1 MB logo file, JPEG images at most 400 KB and
+  2000 px a side, 50 line items. The store is in memory only: 300 quotes,
+  300 mock emails, 50 MB total, oldest deleted first.
+- **Data lifecycle**: everything is wiped on start and daily at 04:00 UTC. Review
+  links stop working 24 hours after sending. The demo clock goes at most 30 days ahead.
+- **Content**: a "Public demo: data is wiped daily" banner on every page;
+  `robots.txt` disallows all crawling, and `X-Robots-Tag: noindex, nofollow` plus a
+  noindex meta tag are on every page. User text is always escaped, and the only
+  link in an email is the server's own review link (from `TQB_PUBLIC_URL` or
+  `RAILWAY_PUBLIC_DOMAIN`, never the request's `Host` header).
+- **Ops**: `/health`, HSTS behind HTTPS, `X-Frame-Options: DENY`,
+  request/header timeouts, bounded connections, graceful shutdown on SIGTERM,
+  and errors that never reveal details. Logs never contain user data.
+
+```sh
+DEMO_MODE=1 npm start
+docker build -t trades-quote-builder . && docker run -p 8080:8080 trades-quote-builder   # runs as the non-root node user
+```
 
 ## Tests
 
 ```sh
 npm ci                              # dev dependency: Playwright
 npx playwright install chromium     # once
-npm test             # unit: pricing math, price book, PDF, tokens, follow-ups, mailer (mocked HTTP/SMTP), API
-npm run test:e2e     # Chromium 390px/1440px: on-site + emailed approval, follow-ups, 1080x1920 frames
+npm test             # unit: pricing math, price book, PDF, tokens, follow-ups, mailer (mocked HTTP/SMTP), API, public demo lock
+npm run test:e2e     # Chromium 390px/1440px: on-site + emailed approval, follow-ups, 1080x1920 frames, public demo
 npm run test:all
 SCREENSHOT_DIR=/some/folder npm run test:e2e   # where screenshots and PDFs are saved (default test-results/, git-ignored)
 ```
@@ -141,6 +173,8 @@ public/lib/model.js, store.js, browser.js   data shapes, storage, signature pad
 public/review.html      emailed review link  public/review.js
 server/api.js           quote API: email, review, approve/decline, outbox, demo clock
 server/store.js, tokens.js, followups.js, mailer.js, email-templates.js
+server/public-demo.js   DEMO_MODE=1 lock: limits, rate limiting, visitor sessions, banner, daily wipe
+Dockerfile, railway.json   public demo container (non-root, one replica, /health check)
 ```
 
 ## Licence

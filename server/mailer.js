@@ -33,7 +33,16 @@ export function addressOf(from) {
   return (m ? m[1] : String(from || '')).trim();
 }
 
-export function emailConfigFromEnv(env = process.env, { demo = false } = {}) {
+/**
+ * The public demo's email config: the mock outbox, always. Provider, key, SMTP
+ * and allowlist settings are not read at all, so no env var can turn real email on.
+ */
+export function lockedEmailConfig() {
+  return { provider: 'mock', demo: true, locked: true, from: '', resendKey: '', smtp: { host: '', port: 0, secure: false, user: '', pass: '' }, allowlist: [] };
+}
+
+export function emailConfigFromEnv(env = process.env, { demo = false, publicDemo = false } = {}) {
+  if (publicDemo) return lockedEmailConfig();
   return {
     provider: (env.TQB_EMAIL_PROVIDER || (demo ? 'mock' : '')).toLowerCase(),
     demo,
@@ -58,12 +67,13 @@ export function createMailer(cfg, deps = {}) {
   const fetchImpl = deps.fetchImpl || globalThis.fetch;
   const base = { provider: cfg.provider || 'none', from: cfg.from, mock: false, configured: false, reason: "Email isn't set up." };
 
-  if (cfg.provider === 'mock') {
-    if (!cfg.demo) return { ...base, provider: 'none', reason: "Email isn't set up. (The mock outbox only runs in demo mode.)", send: notConfigured };
+  if (cfg.locked || cfg.provider === 'mock') {
+    if (!cfg.demo && !cfg.locked) return { ...base, provider: 'none', reason: "Email isn't set up. (The mock outbox only runs in demo mode.)", send: notConfigured };
+    const from = (!cfg.locked && cfg.from) || 'Quote Builder demo <demo@example.invalid>';
     return {
-      ...base, configured: true, mock: true, reason: '', from: cfg.from || 'Quote Builder demo <demo@example.invalid>',
+      ...base, provider: 'mock', configured: true, mock: true, locked: !!cfg.locked, reason: '', from,
       async send(msg) {
-        return { id: deps.outbox({ ...msg, from: cfg.from || 'Quote Builder demo <demo@example.invalid>' }), provider: 'mock' };
+        return { id: deps.outbox({ ...msg, from }), provider: 'mock' };
       },
     };
   }

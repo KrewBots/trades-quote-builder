@@ -40,6 +40,12 @@ button, input, select, textarea { font: inherit; color: inherit; }
 [hidden] { display: none !important; }
 h1, h2, h3, h4 { margin: 0; }
 
+/* ------------------------------------------------------------------ public demo banner (added by the server) */
+.demo-banner {
+  background: var(--amber); color: var(--ink); text-align: center; font-size: 14px; line-height: 1.35;
+  padding: 8px 14px; border-bottom: 2px solid var(--ink);
+}
+
 /* ------------------------------------------------------------------ topbar */
 .topbar {
   position: sticky; top: 0; z-index: 20; color: #fff;
