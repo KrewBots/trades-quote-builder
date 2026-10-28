@@ -2,7 +2,7 @@
 // the demo mock outbox and demo time travel.
 import { randomBytes } from 'node:crypto';
 import { newToken, newPublicId, isPublicId, hashToken, tokenMatches, checkLink, expiryFor } from './tokens.js';
-import { newFollowUps, normaliseDays, followUpPlan, stopFollowUps, DEFAULT_DAYS, DAY } from './followups.js';
+import { newFollowUps, normaliseDays, followUpPlan, followUpSchedule, stopFollowUps, DEFAULT_DAYS, DAY } from './followups.js';
 import { isEmail, EmailNotConfigured, RecipientNotAllowed } from './mailer.js';
 import { quoteEmail } from './email-templates.js';
 import { buildQuotePdf } from '../public/lib/quote-pdf.js';
@@ -142,6 +142,7 @@ export function createApi(ctx) {
         sent: rec.followUps.sent.map((s) => ({ day: s.day, n: s.n, at: s.at })),
         next: plan.next ? new Date(plan.next.at).toISOString() : null, nextN: plan.next?.n ?? null,
         stopped: plan.stopped, stoppedAt: rec.followUps.stoppedAt,
+        schedule: followUpSchedule(rec, clock.now()),
       },
       now: nowIso(),
     };

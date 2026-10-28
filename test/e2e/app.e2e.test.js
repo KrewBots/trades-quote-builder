@@ -147,6 +147,7 @@ for (const [label, viewport, signMode] of [['390', { width: 390, height: 844 }, 
 
     // 2. Totals update live: bump a quantity and the markup, then put them back.
     const first = page.locator('#items .item').first();
+    await first.locator('.item-row').click(); // tap a line item to edit it
     await first.getByRole('button', { name: 'More' }).click();
     const bumped = quoteTotals(sampleItems.map((it, i) => ({ ...it, qty: i === 0 ? it.qty + 1 : it.qty })), SAMPLE_JOB);
     await totalIs(page, money(bumped.total));
@@ -170,7 +171,7 @@ for (const [label, viewport, signMode] of [['390', { width: 390, height: 844 }, 
     keep(`pdf-preview-${label}.png`, await page.screenshot());
     const pdf = await grabPdf(page, () => page.getByTestId('preview-download').click(), label === '1440' ? 'sample-quote.pdf' : undefined);
     assert.match(pdf.name, /^Q-\d+-Jordan-Rivera\.pdf$/);
-    for (const t of ['(QUOTE)', '(TOTAL)', `(${TOTAL})`, `(${money(sampleTotals.subtotal)})`, `(${money(sampleTotals.tax)})`, `(${SAMPLE_BUSINESS.name})`, '(Jordan Rivera)', '(Customer signature)']) {
+    for (const t of ['(Quote)', '(Total)', `(${TOTAL})`, `(${money(sampleTotals.subtotal)})`, `(${money(sampleTotals.tax)})`, `(${SAMPLE_BUSINESS.name})`, '(Jordan Rivera)', '(Customer signature)']) {
       assert.ok(pdf.s.includes(t), `PDF contains ${t}`);
     }
     for (const it of sampleItems) assert.ok(pdf.s.includes(`(${it.name})`), `PDF line ${it.name}`);
@@ -229,7 +230,7 @@ for (const [label, viewport, signMode] of [['390', { width: 390, height: 844 }, 
     // 7. Signed PDF from the approval page.
     const signed = await grabPdf(page, () => page.getByTestId('approve-download-signed').click(), label === '390' ? 'signed-quote-drawn.pdf' : 'signed-quote-typed.pdf');
     assert.match(signed.name, /-signed\.pdf$/);
-    for (const t of ['(APPROVED QUOTE)', '(Approved)', `(Accepted total: ${TOTAL})`, `(${TOTAL})`, '(Simple acceptance record', 'Not a certified']) {
+    for (const t of ['(Approved quote)', '(Approved)', `(Accepted total: ${TOTAL})`, `(${TOTAL})`, '(Simple acceptance record', 'Not a certified']) {
       assert.ok(signed.s.includes(t), `signed PDF contains ${t}`);
     }
     assert.ok(signed.s.includes(signMode === 'draw' ? '(Jordan Rivera)' : '(Jordan Rivera \\(typed signature\\))'), 'signer line');
@@ -246,7 +247,7 @@ for (const [label, viewport, signMode] of [['390', { width: 390, height: 844 }, 
     assert.equal(await page.locator('#client-name').isDisabled(), true);
     assert.equal(await page.getByTestId('send').isHidden(), true);
     const again = await grabPdf(page, () => page.getByTestId('download-signed').click());
-    assert.ok(again.s.includes('(APPROVED QUOTE)'));
+    assert.ok(again.s.includes('(Approved quote)'));
     await page.waitForTimeout(400);
     keep(`builder-approved-${label}.png`, await page.screenshot());
 
@@ -396,7 +397,7 @@ for (const [label, viewport, signMode] of [['390', { width: 390, height: 844 }, 
     await cp.evaluate(() => window.scrollTo(0, 0));
     keep(`review-link-approved-${label}.png`, await cp.screenshot());
     const signed = await grabPdf(cp, () => cp.getByTestId('review-download-signed').click(), `signed-quote-emailed-${label}.pdf`);
-    for (const t of ['(APPROVED QUOTE)', '(Approved)', `(Accepted total: ${TOTAL})`, '(Simple acceptance record']) assert.ok(signed.s.includes(t), `signed PDF contains ${t}`);
+    for (const t of ['(Approved quote)', '(Approved)', `(Accepted total: ${TOTAL})`, '(Simple acceptance record']) assert.ok(signed.s.includes(t), `signed PDF contains ${t}`);
     assert.ok(signed.s.includes(signMode === 'draw' ? '(Jordan Rivera)' : '(Jordan Rivera \\(typed signature\\))'), 'signer line');
     assert.equal(await cp.evaluate(() => localStorage.getItem('tqb.quotes')), null, 'customer device stores nothing');
     clean(cust.problems);
@@ -409,7 +410,7 @@ for (const [label, viewport, signMode] of [['390', { width: 390, height: 844 }, 
     assert.equal(await page.getByTestId('fu-line').textContent(), 'Follow-ups stopped: approved');
     assert.equal(await page.locator('#lockable').evaluate((el) => el.disabled), true);
     const builderSigned = await grabPdf(page, () => page.getByTestId('download-signed').click());
-    assert.ok(builderSigned.s.includes('(APPROVED QUOTE)'));
+    assert.ok(builderSigned.s.includes('(Approved quote)'));
     keep(`builder-approved-by-email-${label}.png`, await page.screenshot());
 
     // 5. A second quote is never approved: time travel fires its first follow-up; the approved one gets none.
@@ -578,6 +579,7 @@ test('business details + logo upload, price book edits persist, quote list, miss
   await page.locator('#dlg-book [data-close]').click();
 
   // Remove the line -> totals back to zero; PDF download refuses an empty quote.
+  await page.locator('#items .item .item-row').click(); // tap the line item to edit it
   await page.locator('#items .item [data-act="remove"]').click();
   await totalIs(page, '$0.00');
   await page.getByTestId('download-pdf').click();

@@ -111,11 +111,28 @@ export class PdfDoc {
     return this;
   }
 
-  rect(x, y, w, h, { fill, stroke, lineWidth = 1 } = {}) {
+  /** Rectangle path ops; with a radius the corners are quarter circles drawn as Bezier curves. */
+  rectPath(x, y, w, h, radius = 0) {
+    const r = Math.min(radius, w / 2, h / 2);
+    const b = this.H - y - h; // PDF origin is bottom-left
+    if (!(r > 0)) return `${f(x)} ${f(b)} ${f(w)} ${f(h)} re`;
+    const k = r * 0.5523; // control-point distance for a quarter circle
+    const t = b + h;
+    const r2 = x + w;
+    return [
+      `${f(x + r)} ${f(b)} m`, `${f(r2 - r)} ${f(b)} l`,
+      `${f(r2 - r + k)} ${f(b)} ${f(r2)} ${f(b + r - k)} ${f(r2)} ${f(b + r)} c`, `${f(r2)} ${f(t - r)} l`,
+      `${f(r2)} ${f(t - r + k)} ${f(r2 - r + k)} ${f(t)} ${f(r2 - r)} ${f(t)} c`, `${f(x + r)} ${f(t)} l`,
+      `${f(x + r - k)} ${f(t)} ${f(x)} ${f(t - r + k)} ${f(x)} ${f(t - r)} c`, `${f(x)} ${f(b + r)} l`,
+      `${f(x)} ${f(b + r - k)} ${f(x + r - k)} ${f(b)} ${f(x + r)} ${f(b)} c h`,
+    ].join(' ');
+  }
+
+  rect(x, y, w, h, { fill, stroke, lineWidth = 1, radius = 0 } = {}) {
     const ops = [];
     if (fill) ops.push(`${rgb(fill)} rg`);
     if (stroke) ops.push(`${rgb(stroke)} RG ${f(lineWidth)} w`);
-    ops.push(`${f(x)} ${f(this.H - y - h)} ${f(w)} ${f(h)} re ${fill && stroke ? 'B' : fill ? 'f' : 'S'}`);
+    ops.push(`${this.rectPath(x, y, w, h, radius)} ${fill && stroke ? 'B' : fill ? 'f' : 'S'}`);
     this.page.push(ops.join(' '));
     return this;
   }
@@ -134,8 +151,8 @@ export class PdfDoc {
     return this;
   }
 
-  /** Draw a JPEG (binary string). Returns false when the data is not a usable JPEG. */
-  image(bin, x, y, w, h) {
+  /** Draw a JPEG (binary string), optionally clipped to rounded corners. Returns false when the data is not a usable JPEG. */
+  image(bin, x, y, w, h, { radius = 0 } = {}) {
     const size = jpegSize(bin || '');
     if (!size) return false;
     let img = this.images.find((i) => i.bin === bin);
@@ -143,7 +160,8 @@ export class PdfDoc {
       img = { bin, ...size, name: `Im${this.images.length + 1}` };
       this.images.push(img);
     }
-    this.page.push(`q ${f(w)} 0 0 ${f(h)} ${f(x)} ${f(this.H - y - h)} cm /${img.name} Do Q`);
+    const clip = radius > 0 ? `${this.rectPath(x, y, w, h, radius)} W n ` : '';
+    this.page.push(`q ${clip}${f(w)} 0 0 ${f(h)} ${f(x)} ${f(this.H - y - h)} cm /${img.name} Do Q`);
     return true;
   }
 

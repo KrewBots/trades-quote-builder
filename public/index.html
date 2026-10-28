@@ -4,175 +4,198 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light">
-  <meta name="theme-color" content="#13233f">
+  <meta name="theme-color" content="#F6F4F0">
   <meta name="robots" content="noindex, nofollow">
   <title>Trades Quote Builder</title>
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="preload" href="/fonts/InstrumentSans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/app.js"></script>
 </head>
-<body class="trade-plumbing">
-  <header class="topbar">
-    <div class="topbar-inner">
+<body class="builder">
+  <header class="app-bar">
+    <div class="app-bar-inner">
       <a class="brand" href="/" aria-label="Trades Quote Builder home">
-        <img src="/icon.svg" alt="" width="34" height="34">
-        <span>Trades Quote<b>Builder</b></span>
+        <span class="brand-mark"><i data-icon="file-check-2"></i></span>
+        <span class="brand-name"><span>Trades</span> Quote Builder</span>
       </a>
-      <nav class="top-actions">
-        <button class="btn btn-ghost-light" type="button" id="open-quotes">Quotes <span class="count" id="quote-count">0</span></button>
-        <button class="btn btn-ghost-light" type="button" id="open-outbox" hidden data-testid="open-outbox">Outbox <span class="count" id="outbox-count">0</span></button>
-        <button class="btn btn-ghost-light" type="button" id="open-business">Business</button>
-        <button class="btn btn-hivis" type="button" id="load-sample" data-testid="sample">Load sample job</button>
-      </nav>
+      <button class="icon-btn" type="button" id="open-quotes" aria-label="Quotes"><i data-icon="files"></i><span class="badge num" id="quote-count">0</span></button>
+      <button class="icon-btn" type="button" id="open-outbox" hidden data-testid="open-outbox" aria-label="Outbox (demo)"><i data-icon="inbox"></i><span class="badge num" id="outbox-count">0</span></button>
+      <button class="icon-btn" type="button" id="open-business" aria-label="Your business"><i data-icon="building-2"></i></button>
     </div>
   </header>
 
   <main class="layout">
     <section class="editor" aria-label="Quote editor">
-      <div class="status" id="status" data-state="draft" role="status">
-        <span class="status-dot"></span>
-        <span class="status-text" id="status-text">Draft</span>
-        <span class="status-num" id="quote-number">Q-1001</span>
+      <div class="page-head">
+        <div class="meta-row status" id="status" data-state="draft">
+          <span class="num" id="quote-number">Q-1001</span>
+          <span class="pill pill-neutral" id="status-pill"><span class="dot"></span>Draft</span>
+        </div>
+        <h1 class="h1" id="page-title">New quote</h1>
+        <p class="lead" id="page-lead">Price a plumbing or electrical job from your price book, then get it approved on site or by email.</p>
+        <p class="status-line" id="status-text" role="status" hidden></p>
+      </div>
+
+      <div class="sample" id="sample-card">
+        <span class="sample-ico"><i data-icon="briefcase"></i></span>
+        <div class="sample-txt"><b>Try a sample job</b><span>Fictional business and client, for demos and filming.</span></div>
+        <div class="sample-slot" id="sample-slot"><button class="btn btn-ink btn-md btn-block" type="button" id="load-sample" data-testid="sample">Load sample job</button></div>
       </div>
 
       <fieldset class="lockable" id="lockable">
-        <article class="card" id="card-trade">
-          <h2 class="card-title"><span class="step">01</span> Trade</h2>
-          <div class="trade-toggle" role="radiogroup" aria-label="Trade">
-            <label class="trade-opt"><input type="radio" name="trade" value="plumbing" checked>
-              <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5C8.5 7 6 10.4 6 13.6a6 6 0 0 0 12 0c0-3.2-2.5-6.6-6-11.1z"/></svg>Plumbing</span></label>
-            <label class="trade-opt"><input type="radio" name="trade" value="electrical">
-              <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2 5 13.5h6L9.5 22 19 9.5h-6.2z"/></svg>Electrical</span></label>
+        <legend class="sr">Quote details</legend>
+        <section class="section" id="card-trade" aria-labelledby="t-trade">
+          <div class="section-head"><h2 class="section-title" id="t-trade">Trade</h2></div>
+          <div class="choice" role="radiogroup" aria-labelledby="t-trade">
+            <label class="choice-opt trade-opt"><input class="sr" type="radio" name="trade" value="plumbing" checked><i data-icon="droplet"></i>Plumbing</label>
+            <label class="choice-opt trade-opt"><input class="sr" type="radio" name="trade" value="electrical"><i data-icon="zap"></i>Electrical</label>
           </div>
-        </article>
+        </section>
 
-        <article class="card" id="card-client">
-          <h2 class="card-title"><span class="step">02</span> Client &amp; job</h2>
-          <div class="grid2">
-            <label class="field"><span>Client name</span><input id="client-name" autocomplete="off" placeholder="e.g. Sam Lee"></label>
-            <label class="field"><span>Phone</span><input id="client-phone" inputmode="tel" autocomplete="off" placeholder="(555) 010-0000"></label>
-            <label class="field"><span>Email</span><input id="client-email" type="email" autocomplete="off" placeholder="name@example.com"></label>
-            <label class="field"><span>Job address</span><input id="client-address" autocomplete="off" placeholder="Street, city"></label>
+        <section class="section" id="card-client" aria-labelledby="t-client">
+          <div class="section-head"><h2 class="section-title" id="t-client">Client and job</h2></div>
+          <div class="fields">
+            <label class="field"><span>Client name</span><input class="input" id="client-name" autocomplete="off" placeholder="e.g. Sam Lee"></label>
+            <label class="field"><span>Phone</span><input class="input" id="client-phone" inputmode="tel" autocomplete="off" placeholder="(555) 010-0000"></label>
+            <label class="field"><span>Email</span><input class="input" id="client-email" type="email" autocomplete="off" placeholder="name@example.com"></label>
+            <label class="field"><span>Job address</span><input class="input" id="client-address" autocomplete="off" placeholder="Street, city"></label>
           </div>
-          <label class="field"><span>Job title</span><input id="job-title" autocomplete="off" placeholder="e.g. Kitchen faucet replacement"></label>
-        </article>
+          <label class="field"><span>Job title</span><input class="input" id="job-title" autocomplete="off" placeholder="e.g. Kitchen faucet replacement"></label>
+        </section>
 
-        <article class="card" id="card-describe">
-          <h2 class="card-title"><span class="step">03</span> Describe the job</h2>
-          <p class="hint">Type what the customer needs. Matching price-book items appear below. Matching happens on this device.</p>
-          <textarea id="description" rows="3" placeholder="e.g. Replace the old water heater and fix the dripping kitchen faucet"></textarea>
-          <div class="suggest-head">
-            <span id="suggest-label" class="suggest-label">Suggestions</span>
-            <button class="btn btn-small btn-outline" type="button" id="add-all" hidden>Add all</button>
+        <section class="section" id="card-describe" aria-labelledby="t-desc">
+          <div class="section-head"><h2 class="section-title" id="t-desc">Describe the job</h2></div>
+          <textarea class="textarea" id="description" rows="5" aria-labelledby="t-desc" placeholder="e.g. Replace the old water heater and fix the dripping kitchen faucet"></textarea>
+          <p class="help"><i data-icon="shield-check"></i>Matched on this device from your price book. No AI service is called.</p>
+          <p class="help" id="suggest-hint" hidden></p>
+        </section>
+
+        <section class="section flush" id="card-matches" aria-labelledby="suggest-label" hidden>
+          <div class="section-head">
+            <h2 class="section-title" id="suggest-label">Matches</h2>
+            <button class="btn btn-secondary btn-sm" type="button" id="add-all" hidden>Add all</button>
+            <span class="pill pill-accent" id="all-added" hidden><i data-icon="check"></i>All added</span>
           </div>
-          <ul class="suggestions" id="suggestions" aria-live="polite"></ul>
-        </article>
+          <ul class="list suggestions" id="suggestions" aria-live="polite"></ul>
+        </section>
 
-        <article class="card" id="card-items">
-          <h2 class="card-title"><span class="step">04</span> Line items <span class="pill" id="item-count">0</span></h2>
-          <ul class="items" id="items"></ul>
+        <section class="section flush" id="card-items" aria-labelledby="t-items">
+          <div class="section-head"><h2 class="section-title" id="t-items">Line items</h2><span class="pill pill-neutral num" id="item-count">0</span></div>
+          <ul class="list items" id="items"></ul>
           <p class="empty" id="items-empty">No items yet. Describe the job above or pick from the price book.</p>
-          <button class="btn btn-outline btn-block" type="button" id="open-book">+ Add from price book</button>
-        </article>
+          <div class="items-foot"><button class="btn btn-secondary btn-block btn-md" type="button" id="open-book"><i data-icon="book-open"></i>Add from price book</button></div>
+        </section>
 
-        <article class="card" id="card-pricing">
-          <h2 class="card-title"><span class="step">05</span> Rates &amp; terms</h2>
-          <div class="grid3">
-            <label class="field"><span>Labor rate</span><div class="affix"><i>$</i><input id="labor-rate" inputmode="decimal"><i>/hr</i></div></label>
-            <label class="field"><span>Materials markup</span><div class="affix"><input id="markup" inputmode="decimal"><i>%</i></div></label>
-            <label class="field"><span>Sales tax</span><div class="affix"><input id="tax" inputmode="decimal"><i>%</i></div></label>
-          </div>
+        <section class="section" id="card-pricing" aria-labelledby="t-rates">
+          <div class="section-head"><h2 class="section-title" id="t-rates">Rates and terms</h2></div>
           <div class="grid2">
-            <label class="field"><span>Tax applies to</span>
-              <select id="tax-on"><option value="all">Labor and materials</option><option value="parts">Materials only</option></select></label>
-            <label class="field"><span>Quote valid for</span><div class="affix"><input id="valid-days" inputmode="numeric"><i>days</i></div></label>
+            <label class="field"><span>Labor rate</span><span class="affix"><i>$</i><input id="labor-rate" inputmode="decimal"><i>/hr</i></span></label>
+            <label class="field"><span>Materials markup</span><span class="affix"><input id="markup" inputmode="decimal"><i>%</i></span></label>
+            <label class="field"><span>Sales tax</span><span class="affix"><input id="tax" inputmode="decimal"><i>%</i></span></label>
+            <label class="field"><span>Valid for</span><span class="affix"><input id="valid-days" inputmode="numeric"><i>days</i></span></label>
           </div>
-          <label class="field"><span>Terms</span><textarea id="terms" rows="4"></textarea></label>
-        </article>
+          <div class="field" role="group" aria-labelledby="tax-on-label">
+            <span id="tax-on-label">Tax applies to</span>
+            <div class="seg" id="tax-on" role="radiogroup" aria-labelledby="tax-on-label">
+              <button type="button" class="seg-btn" role="radio" data-tax-on="all" aria-checked="true">Labor and materials</button>
+              <button type="button" class="seg-btn" role="radio" data-tax-on="parts" aria-checked="false">Materials only</button>
+            </div>
+          </div>
+          <label class="field"><span>Terms</span><textarea class="textarea" id="terms" rows="7"></textarea></label>
+        </section>
       </fieldset>
     </section>
 
     <aside class="summary" aria-label="Quote summary">
-      <div class="summary-card" id="summary">
-        <div class="sum-top">
-          <span class="sum-label">Quote total</span>
-          <span class="sum-trade" id="sum-trade">Plumbing</span>
-        </div>
-        <output class="sum-total" id="total" data-testid="total">$0.00</output>
-        <dl class="sum-rows">
-          <div><dt>Labor <small id="sum-hours"></small></dt><dd id="sum-labor">$0.00</dd></div>
-          <div><dt>Materials</dt><dd id="sum-parts">$0.00</dd></div>
-          <div><dt>Subtotal</dt><dd id="sum-subtotal">$0.00</dd></div>
-          <div><dt id="sum-tax-label">Tax</dt><dd id="sum-tax">$0.00</dd></div>
+      <section class="total-card" id="summary" aria-label="Quote total">
+        <div class="total-top"><span class="total-label">Quote total</span><span class="pill pill-neutral" id="sum-trade-pill"><i data-icon="droplet" id="sum-trade-ico"></i><span id="sum-trade">Plumbing</span></span></div>
+        <output class="total-amt num" id="total" data-testid="total" data-cents>$0<span class="cents">.00</span></output>
+        <dl class="sum">
+          <div><dt>Labor<small id="sum-hours"></small></dt><dd class="num" id="sum-labor">$0.00</dd></div>
+          <div><dt>Materials</dt><dd class="num" id="sum-parts">$0.00</dd></div>
+          <div><dt>Subtotal</dt><dd class="num" id="sum-subtotal">$0.00</dd></div>
+          <div><dt id="sum-tax-label">Tax</dt><dd class="num" id="sum-tax">$0.00</dd></div>
         </dl>
-        <div class="sum-approved" id="sum-approved" hidden>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6 11-11-1.4-1.4z"/></svg>
-          <div><b>Approved</b><span id="approved-stamp" data-testid="approved-stamp"></span></div>
+        <div class="banner banner-success sum-approved" id="sum-approved" hidden>
+          <i data-icon="circle-check"></i>
+          <div id="approved-stamp" data-testid="approved-stamp"></div>
         </div>
-        <div class="sum-actions">
-          <button class="btn btn-ink btn-block" type="button" id="preview-pdf">Preview PDF</button>
-          <button class="btn btn-outline btn-block" type="button" id="download-pdf" data-testid="download-pdf">Download PDF</button>
-          <button class="btn btn-hivis btn-block" type="button" id="send" data-testid="send">Get it approved</button>
-          <p class="fu-line" id="fu-line" hidden data-testid="fu-line"></p>
-          <button class="btn btn-green btn-block" type="button" id="download-signed" data-testid="download-signed" hidden>Download signed PDF</button>
+        <div class="total-actions">
+          <button class="btn btn-primary btn-lg btn-block" type="button" id="send" data-testid="send"><i data-icon="send"></i>Get it approved</button>
+          <button class="btn btn-primary btn-lg btn-block" type="button" id="download-signed" data-testid="download-signed" hidden><i data-icon="download"></i>Download signed PDF</button>
+          <div class="pair" id="action-pair">
+            <button class="btn btn-secondary btn-md" type="button" id="preview-pdf"><i data-icon="eye"></i><span id="preview-label">Preview PDF</span></button>
+            <button class="btn btn-secondary btn-md" type="button" id="download-pdf" data-testid="download-pdf"><i data-icon="download"></i>Download</button>
+          </div>
         </div>
-        <div class="sum-foot">
-          <button class="link" type="button" id="new-quote">New quote</button>
-          <button class="link" type="button" id="duplicate-quote">Duplicate</button>
+        <p class="help fu-line" id="fu-line" hidden data-testid="fu-line"></p>
+        <div class="total-foot" id="total-foot">
+          <button class="link quiet" type="button" id="new-quote"><i data-icon="file-plus"></i>New quote</button>
+          <button class="link quiet" type="button" id="duplicate-quote"><i data-icon="copy"></i>Duplicate</button>
         </div>
-        <p class="local-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5z"/></svg> Saved on this device. Emailed quotes are also stored on your quote server so customers can open them.</p>
-      </div>
+      </section>
+      <p class="local-note"><i data-icon="shield-check"></i><span id="storage-note">Saved on this device. Emailed quotes are also stored on your quote server so the review link works.</span></p>
     </aside>
   </main>
 
-  <div class="mobilebar" id="mobilebar">
-    <div><span>Total</span><output id="mobile-total">$0.00</output></div>
-    <button class="btn btn-hivis" type="button" id="mobile-finish">Finish quote</button>
+  <div class="bottom-bar" id="mobilebar">
+    <div class="bb-total"><span>Total</span><output class="num" id="mobile-total">$0.00</output></div>
+    <button class="btn btn-primary" type="button" id="mobile-finish">Finish quote<i data-icon="arrow-right"></i></button>
   </div>
 
   <!-- Business settings -->
   <dialog class="sheet" id="dlg-business" aria-labelledby="business-title">
     <form method="dialog" class="sheet-inner" id="business-form">
-      <header class="sheet-head"><h2 id="business-title">Your business</h2><button class="x" value="cancel" aria-label="Close">&times;</button></header>
-      <div class="logo-row">
-        <div class="logo-box" id="logo-box"><img id="logo-preview" alt="Business logo" hidden><span id="logo-empty">Logo</span></div>
-        <div>
-          <label class="btn btn-outline btn-small file-btn">Upload logo<input type="file" id="logo-input" accept="image/png,image/jpeg,image/webp,image/svg+xml"></label>
-          <button class="link" type="button" id="logo-remove">Remove</button>
-          <p class="hint">PNG, JPG or SVG. Stored on this device.</p>
+      <div class="grabber" aria-hidden="true"></div>
+      <header class="sheet-head"><h2 class="sheet-title" id="business-title">Your business</h2><button class="close-btn x" value="cancel" formnovalidate aria-label="Close"><i data-icon="x"></i></button></header>
+      <div class="sheet-body">
+        <div class="logo-row">
+          <div class="logo-box" id="logo-box"><img id="logo-preview" alt="Business logo" hidden><span id="logo-empty"><i data-icon="building-2"></i></span></div>
+          <div class="logo-ctl">
+            <div class="logo-btns">
+              <label class="btn btn-secondary file-btn"><i data-icon="upload"></i>Upload logo<input type="file" id="logo-input" accept="image/png,image/jpeg,image/webp,image/svg+xml"></label>
+              <button class="link quiet" type="button" id="logo-remove">Remove</button>
+            </div>
+            <span class="help">PNG, JPG or SVG. Stored on this device.</span>
+          </div>
         </div>
+        <label class="field"><span>Business name</span><input class="input" id="biz-name" autocomplete="off"></label>
+        <label class="field"><span>License number</span><input class="input" id="biz-license" autocomplete="off"><span class="help">Printed on every quote, PDF and email.</span></label>
+        <label class="field"><span>Phone</span><input class="input" id="biz-phone" inputmode="tel" autocomplete="off"></label>
+        <label class="field"><span>Email</span><input class="input" id="biz-email" inputmode="email" autocomplete="off"></label>
+        <label class="field"><span>Address</span><input class="input" id="biz-address" autocomplete="off"></label>
+        <button class="row row-card" type="button" id="open-book-settings">
+          <span class="row-ico"><i data-icon="book-open"></i></span>
+          <span class="row-main"><span class="row-title">Price book</span><span class="row-meta" id="book-count">0 items</span></span>
+          <i data-icon="chevron-right" class="chev"></i>
+        </button>
       </div>
-      <label class="field"><span>Business name</span><input id="biz-name" autocomplete="off"></label>
-      <label class="field"><span>License number</span><input id="biz-license" autocomplete="off"></label>
-      <div class="grid2">
-        <label class="field"><span>Phone</span><input id="biz-phone" autocomplete="off"></label>
-        <label class="field"><span>Email</span><input id="biz-email" autocomplete="off"></label>
-      </div>
-      <label class="field"><span>Address</span><input id="biz-address" autocomplete="off"></label>
-      <footer class="sheet-foot"><button class="btn btn-hivis" value="save" id="biz-save">Save</button></footer>
+      <footer class="sheet-foot"><button class="btn btn-primary" value="save" id="biz-save">Save</button></footer>
     </form>
   </dialog>
 
   <!-- Price book -->
   <dialog class="sheet sheet-tall" id="dlg-book" aria-labelledby="book-title">
     <div class="sheet-inner">
+      <div class="grabber" aria-hidden="true"></div>
       <header class="sheet-head">
-        <h2 id="book-title">Price book</h2>
-        <button class="x" type="button" data-close aria-label="Close">&times;</button>
+        <h2 class="sheet-title" id="book-title">Price book</h2>
+        <button class="close-btn x" type="button" data-close aria-label="Close"><i data-icon="x"></i></button>
       </header>
-      <div class="book-tools">
-        <input type="search" id="book-search" placeholder="Search items" aria-label="Search price book">
-        <div class="seg" role="tablist">
-          <button type="button" class="seg-btn" data-book-trade="plumbing" role="tab">Plumbing</button>
-          <button type="button" class="seg-btn" data-book-trade="electrical" role="tab">Electrical</button>
+      <div class="sheet-body">
+        <label class="affix search"><i data-icon="search"></i><input type="search" id="book-search" placeholder="Search items" aria-label="Search price book"></label>
+        <div class="seg" role="tablist" aria-label="Trade">
+          <button type="button" class="seg-btn" data-book-trade="plumbing" role="tab"><i data-icon="droplet"></i>Plumbing</button>
+          <button type="button" class="seg-btn" data-book-trade="electrical" role="tab"><i data-icon="zap"></i>Electrical</button>
         </div>
-        <label class="switch"><input type="checkbox" id="book-edit"> <span>Edit prices</span></label>
+        <label class="switch-row"><span>Edit prices</span><input type="checkbox" class="switch-input" id="book-edit"><span class="switch" aria-hidden="true"></span></label>
+        <p class="help book-hint" id="book-hint">Tap an item to add it to the quote.</p>
+        <ul class="list book" id="book"></ul>
       </div>
-      <p class="hint book-hint" id="book-hint">Tap an item to add it. Hours and materials are your defaults; edit them with "Edit prices".</p>
-      <ul class="book" id="book"></ul>
       <footer class="sheet-foot book-foot">
-        <button class="link" type="button" id="book-reset">Reset to defaults</button>
-        <button class="btn btn-outline btn-small" type="button" id="book-custom">+ Custom item</button>
+        <button class="btn btn-ghost" type="button" id="book-reset"><i data-icon="rotate-ccw"></i>Reset</button>
+        <button class="btn btn-secondary" type="button" id="book-custom"><i data-icon="plus"></i>Custom item</button>
       </footer>
     </div>
   </dialog>
@@ -180,82 +203,90 @@
   <!-- PDF preview -->
   <dialog class="sheet sheet-wide" id="dlg-preview" aria-labelledby="preview-title">
     <div class="sheet-inner">
+      <div class="grabber" aria-hidden="true"></div>
       <header class="sheet-head">
-        <h2 id="preview-title">PDF preview</h2>
-        <button class="x" type="button" data-close aria-label="Close">&times;</button>
+        <h2 class="sheet-title" id="preview-title">PDF preview</h2><span class="pill pill-neutral">US Letter</span>
+        <button class="close-btn x" type="button" data-close aria-label="Close"><i data-icon="x"></i></button>
       </header>
-      <div class="paper-wrap"><div class="paper" id="paper"></div></div>
+      <div class="sheet-body paper-wrap"><article class="paper" id="paper" aria-label="Quote document"></article></div>
       <footer class="sheet-foot">
-        <button class="btn btn-hivis" type="button" id="preview-download" data-testid="preview-download">Download PDF</button>
+        <button class="btn btn-primary" type="button" id="preview-download" data-testid="preview-download"><i data-icon="download"></i>Download PDF</button>
       </footer>
     </div>
   </dialog>
 
-  <!-- Send for signature -->
+  <!-- Get it approved -->
   <dialog class="sheet" id="dlg-send" aria-labelledby="send-title">
     <div class="sheet-inner">
-      <header class="sheet-head"><h2 id="send-title">Get it approved</h2><button class="x" type="button" data-close aria-label="Close">&times;</button></header>
-      <div class="seg send-mode" role="tablist" aria-label="How the customer approves">
-        <button type="button" class="seg-btn" role="tab" data-send-mode="onsite" aria-selected="true" data-testid="mode-onsite">Approve on site</button>
-        <button type="button" class="seg-btn" role="tab" data-send-mode="email" aria-selected="false" data-testid="mode-email">Email to customer</button>
+      <div class="grabber" aria-hidden="true"></div>
+      <header class="sheet-head"><h2 class="sheet-title" id="send-title">Get it approved</h2><button class="close-btn x" type="button" data-close aria-label="Close"><i data-icon="x"></i></button></header>
+      <div class="sheet-body">
+        <div class="seg lg send-mode" role="tablist" aria-label="How the customer approves">
+          <button type="button" class="seg-btn" role="tab" data-send-mode="onsite" aria-selected="true" data-testid="mode-onsite"><i data-icon="pen-line"></i>On site</button>
+          <button type="button" class="seg-btn" role="tab" data-send-mode="email" aria-selected="false" data-testid="mode-email"><i data-icon="mail"></i>Email</button>
+        </div>
+
+        <section class="pane" id="send-onsite">
+          <p class="body-copy">Hand your phone or tablet to the customer. They review the quote, sign with a finger or type their name, and accept.</p>
+          <div class="link-box"><code class="num" id="approve-url"></code></div>
+          <p class="help">The on-site page reads the quote from this browser, so it opens on this device only.</p>
+        </section>
+
+        <section class="pane" id="send-email" hidden>
+          <div class="card-box" id="email-off" hidden>
+            <div class="banner banner-neutral"><i data-icon="circle-alert"></i><div><b>Email isn't set up</b><span class="email-off-reason" id="email-off-reason"></span></div></div>
+            <p class="help">Set an email provider for this quote server (see the README: TQB_EMAIL_PROVIDER, TQB_EMAIL_FROM, RESEND_API_KEY or SMTP_*, TQB_EMAIL_ALLOWLIST). Nothing is sent until then.</p>
+          </div>
+          <div class="pane" id="email-form" hidden>
+            <div class="banner banner-demo" id="email-mock" hidden><i data-icon="flask-conical"></i><div><b>Demo mode:</b> emails go to the mock Outbox on this server. Nothing is really sent.</div></div>
+            <div class="banner banner-success" id="email-sent" hidden data-testid="email-sent"><i data-icon="mail-check"></i><div><b id="email-sent-title">Emailed</b><br><span class="num" id="email-sent-detail"></span><span class="sr" id="email-fu-detail" data-testid="email-fu-detail"></span></div></div>
+            <label class="field"><span>Customer email</span><input class="input" id="email-to" type="email" autocomplete="off" placeholder="name@example.com" data-testid="email-to"></label>
+            <div class="card-box fu-box">
+              <label class="switch-row"><span>Automatic follow-ups</span><input type="checkbox" class="switch-input" id="fu-enabled" checked data-testid="fu-enabled"><span class="switch" aria-hidden="true"></span></label>
+              <label class="field"><span>Remind after (days)</span><input class="input num" id="fu-days" value="2, 5" inputmode="numeric" data-testid="fu-days"></label>
+              <ol class="tl" id="fu-timeline" aria-label="Follow-up schedule"></ol>
+              <p class="help" id="fu-help">Reminders stop as soon as the customer approves or declines.</p>
+            </div>
+            <p class="error" id="email-error" role="alert"></p>
+            <p class="help">Emailed quotes are stored on your quote server so the customer can open the link. The link is private and stops working after the valid-until date.</p>
+          </div>
+        </section>
       </div>
-
-      <section id="send-onsite">
-        <p>Hand your phone or tablet to the customer. They review the quote, sign with a finger or type their name, and accept.</p>
-        <div class="link-box"><code id="approve-url"></code></div>
-        <p class="hint">The on-site page reads the quote from this browser, so it opens on this device only.</p>
-        <footer class="sheet-foot">
-          <a class="btn btn-hivis" id="open-approve" data-testid="open-approve" href="#">Open approval page</a>
-        </footer>
-      </section>
-
-      <section id="send-email" hidden>
-        <div class="email-off" id="email-off" hidden>
-          <h3>Email isn't set up</h3>
-          <p id="email-off-reason">Email isn't set up.</p>
-          <p class="hint">Set an email provider for this quote server (see the README: TQB_EMAIL_PROVIDER, TQB_EMAIL_FROM, RESEND_API_KEY or SMTP_*, TQB_EMAIL_ALLOWLIST). Nothing is sent until then.</p>
-        </div>
-        <div id="email-form" hidden>
-          <p class="mock-banner" id="email-mock" hidden><b>Demo mode:</b> emails go to the mock Outbox on this server. Nothing is really sent.</p>
-          <label class="field"><span>Customer email</span><input id="email-to" type="email" autocomplete="off" placeholder="name@example.com" data-testid="email-to"></label>
-          <div class="fu-box">
-            <label class="switch"><input type="checkbox" id="fu-enabled" checked data-testid="fu-enabled"> <span>Automatic follow-ups</span></label>
-            <label class="field fu-days"><span>Remind after (days)</span><input id="fu-days" value="2, 5" inputmode="numeric" data-testid="fu-days"></label>
-            <p class="hint">Reminders stop as soon as the customer approves or declines.</p>
-          </div>
-          <div class="email-sent" id="email-sent" hidden data-testid="email-sent">
-            <b id="email-sent-title">Emailed</b>
-            <span id="email-sent-detail"></span>
-            <span id="email-fu-detail" data-testid="email-fu-detail"></span>
-          </div>
-          <p class="error" id="email-error" role="alert"></p>
-          <p class="hint">Emailed quotes are stored on your quote server so the customer can open the link. The link is private and stops working after the valid-until date.</p>
-          <footer class="sheet-foot">
-            <button type="button" class="btn btn-outline" id="fu-save" hidden data-testid="fu-save">Save follow-ups</button>
-            <button type="button" class="btn btn-hivis" id="email-send" data-testid="email-send">Send email</button>
-          </footer>
-        </div>
-      </section>
+      <footer class="sheet-foot" id="send-foot-onsite">
+        <a class="btn btn-primary" id="open-approve" data-testid="open-approve" href="#"><i data-icon="pen-line"></i>Open approval page</a>
+      </footer>
+      <footer class="sheet-foot" id="send-foot-email" hidden>
+        <button type="button" class="btn btn-secondary" id="fu-save" hidden data-testid="fu-save">Save follow-ups</button>
+        <button type="button" class="btn btn-primary" id="email-send" data-testid="email-send"><i data-icon="send"></i><span id="email-send-label">Send email</span></button>
+      </footer>
     </div>
   </dialog>
 
   <!-- Mock outbox (demo mode only) -->
   <dialog class="sheet sheet-wide" id="dlg-outbox" aria-labelledby="outbox-title">
     <div class="sheet-inner">
-      <header class="sheet-head"><h2 id="outbox-title">Outbox <small class="mock-tag">Demo &middot; mock, not really sent</small></h2><button class="x" type="button" data-close aria-label="Close">&times;</button></header>
-      <div class="timetravel" data-testid="timetravel">
-        <div><b>Demo clock</b> <span id="clock-now" data-testid="clock-now"></span><small>Demo only: moves this quote server's clock so follow-ups can be shown without waiting.</small></div>
-        <div class="tt-btns">
-          <button type="button" class="btn btn-small btn-outline" data-advance="1">+1 day</button>
-          <button type="button" class="btn btn-small btn-outline" data-advance="2" data-testid="advance-2">+2 days</button>
-          <button type="button" class="link" id="clock-reset">Reset</button>
-        </div>
-      </div>
-      <div class="outbox">
-        <ul class="outbox-list" id="outbox-list" data-testid="outbox-list"></ul>
-        <div class="outbox-view" id="outbox-view">
-          <p class="empty" id="outbox-empty">No emails yet.</p>
-          <iframe id="outbox-frame" title="Email preview" sandbox="" hidden></iframe>
+      <div class="grabber" aria-hidden="true"></div>
+      <header class="sheet-head"><h2 class="sheet-title" id="outbox-title">Outbox</h2><span class="pill pill-neutral num" id="outbox-pill">0 emails</span><button class="close-btn x" type="button" data-close aria-label="Close"><i data-icon="x"></i></button></header>
+      <div class="sheet-body">
+        <div class="banner banner-demo"><i data-icon="flask-conical"></i><div><b>Demo · mock, not really sent.</b> These emails stay on this quote server.</div></div>
+        <div class="outbox">
+          <div class="outbox-side">
+            <div class="clock-card timetravel" data-testid="timetravel">
+              <div class="clock-head"><i data-icon="calendar-clock"></i><div><b>Demo clock</b><span class="num" id="clock-now" data-testid="clock-now"></span></div></div>
+              <div class="tt-btns">
+                <button type="button" class="btn btn-secondary" data-advance="1">+1 day</button>
+                <button type="button" class="btn btn-secondary" data-advance="2" data-testid="advance-2">+2 days</button>
+                <button type="button" class="btn btn-ghost" id="clock-reset"><i data-icon="rotate-ccw"></i>Reset</button>
+              </div>
+              <p class="help">Demo only: moves this quote server's clock so follow-ups can be shown without waiting.</p>
+            </div>
+            <ul class="outbox-list" id="outbox-list" data-testid="outbox-list"></ul>
+            <p class="empty" id="outbox-empty">No emails yet.</p>
+          </div>
+          <div class="outbox-view" id="outbox-view">
+            <span class="label">Preview</span>
+            <iframe id="outbox-frame" title="Email preview" sandbox="" hidden></iframe>
+          </div>
         </div>
       </div>
     </div>
@@ -264,8 +295,9 @@
   <!-- Quotes list -->
   <dialog class="sheet" id="dlg-quotes" aria-labelledby="quotes-title">
     <div class="sheet-inner">
-      <header class="sheet-head"><h2 id="quotes-title">Saved quotes</h2><button class="x" type="button" data-close aria-label="Close">&times;</button></header>
-      <ul class="quote-list" id="quote-list"></ul>
+      <div class="grabber" aria-hidden="true"></div>
+      <header class="sheet-head"><h2 class="sheet-title" id="quotes-title">Quotes</h2><span class="pill pill-neutral num" id="quotes-pill">0</span><button class="close-btn x" type="button" data-close aria-label="Close"><i data-icon="x"></i></button></header>
+      <div class="sheet-body flush"><ul class="list quote-list" id="quote-list"></ul></div>
     </div>
   </dialog>
 

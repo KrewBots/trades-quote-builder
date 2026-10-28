@@ -5,7 +5,7 @@ files keep their own licences:
 
 | Files | Project | Licence | Full text |
 |---|---|---|---|
-| `public/fonts/Barlow-*.ttf`, `public/fonts/BarlowCondensed-ExtraBold.ttf` | Barlow, Copyright 2017 The Barlow Project Authors | SIL Open Font License 1.1 | `public/fonts/OFL-barlow.txt` |
+| `public/fonts/InstrumentSans-latin.woff2`, `public/fonts/InstrumentSans-latin-ext.woff2` | Instrument Sans, Copyright 2022 The Instrument Sans Project Authors (https://github.com/Instrument/instrument-sans) | SIL Open Font License 1.1 | `public/fonts/OFL-instrument-sans.txt` |
 | `public/fonts/Caveat.ttf` | Caveat, Copyright 2014 The Caveat Project Authors | SIL Open Font License 1.1 | `public/fonts/OFL-caveat.txt` |
 
 The OFL allows bundling and redistributing the fonts with software, including

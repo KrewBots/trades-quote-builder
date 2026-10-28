@@ -4,71 +4,93 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light">
-  <meta name="theme-color" content="#13233f">
+  <meta name="theme-color" content="#F6F4F0">
   <meta name="robots" content="noindex, nofollow">
   <title>Review and approve your quote</title>
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="preload" href="/fonts/InstrumentSans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/approve.js"></script>
 </head>
 <body class="approve-page">
-  <header class="topbar topbar-slim">
-    <div class="topbar-inner">
-      <a class="brand" href="/" id="back-link" aria-label="Back to quote builder">
-        <img src="/icon.svg" alt="" width="30" height="30">
-        <span>Quote<b>Approval</b></span>
-      </a>
-      <span class="top-badge" id="top-badge">Review &amp; sign</span>
+  <header class="app-bar">
+    <div class="app-bar-inner">
+      <span class="brand">
+        <img class="brand-logo" id="biz-logo" alt="" width="32" height="32" hidden>
+        <span class="brand-mark" id="biz-mark"><i data-icon="file-check-2"></i></span>
+        <span class="brand-name" id="biz-name">Your contractor</span>
+      </span>
     </div>
   </header>
 
-  <main class="approve">
-    <section class="missing card" id="missing" hidden>
+  <main class="cust" id="cust">
+    <section class="section missing" id="missing" hidden>
       <h1>Quote not found on this device</h1>
-      <p>Approval links open the quote saved in this browser. Open it on the phone or computer that created the quote.</p>
-      <a class="btn btn-ink" href="/">Go to Quote Builder</a>
+      <p class="body-copy">Approval links open the quote saved in this browser. Open it on the phone or computer that created the quote.</p>
+      <a class="btn btn-ink btn-md" href="/">Go to Quote Builder</a>
     </section>
 
-    <div class="approve-grid" id="approve-grid" hidden>
-      <section class="approve-doc">
-        <p class="approve-intro" id="intro"></p>
-        <div class="paper" id="paper"></div>
-      </section>
+    <div class="page-head" id="head" hidden>
+      <div class="meta-row"><span class="pill pill-accent" id="top-badge"><i data-icon="pen-line"></i>Review and sign</span><span class="num" id="head-number"></span></div>
+      <h1 class="h1" id="head-title"></h1>
+      <p class="lead" id="intro"></p>
+    </div>
 
-      <section class="approve-sign">
-        <form class="card sign-card" id="sign-form" novalidate>
-          <h2 class="card-title"><span class="step">&#9998;</span> Accept this quote</h2>
+    <div class="cust-grid" id="approve-grid" hidden>
+      <div class="cust-main">
+        <section class="total-card summary-card" id="summary-card" aria-label="Quote total">
+          <div class="total-top"><span class="total-label">Quote total</span><span class="pill pill-neutral num" id="sum-valid"></span></div>
+          <output class="total-amt num" id="sum-total"></output>
+          <p class="help num" id="sum-detail"></p>
+        </section>
+        <article class="paper" id="paper" aria-label="Quote document"></article>
+      </div>
+
+      <div class="cust-side">
+        <form class="section sign-card" id="sign-form" novalidate aria-labelledby="t-sign">
+          <div class="section-head"><h2 class="section-title" id="t-sign">Accept this quote</h2></div>
           <div class="sign-total"><span>Total</span><b id="sign-total" data-testid="sign-total"></b></div>
-
-          <label class="field"><span>Your full name</span><input id="signer" autocomplete="name" required></label>
-
+          <label class="field"><span>Your full name</span><input class="input" id="signer" autocomplete="name" required></label>
           <div class="seg sign-mode" role="tablist" aria-label="Signature method">
-            <button type="button" class="seg-btn" data-mode="draw" role="tab" aria-selected="true">Draw</button>
-            <button type="button" class="seg-btn" data-mode="type" role="tab" aria-selected="false">Type</button>
+            <button type="button" class="seg-btn" data-mode="draw" role="tab" aria-selected="true"><i data-icon="pen-line"></i>Draw</button>
+            <button type="button" class="seg-btn" data-mode="type" role="tab" aria-selected="false"><i data-icon="type"></i>Type</button>
           </div>
           <div class="pad-wrap" id="pad-wrap">
+            <span class="pad-line" aria-hidden="true"></span><span class="pad-x" aria-hidden="true">&times;</span>
             <canvas class="pad" id="pad" data-testid="pad" aria-label="Signature pad: draw your signature"></canvas>
-            <span class="pad-hint" id="pad-hint">Sign here with your finger or mouse</span>
-            <button type="button" class="link pad-clear" id="pad-clear">Clear</button>
+            <span class="pad-hint" id="pad-hint">Sign with your finger or mouse</span>
+            <button type="button" class="link quiet pad-clear" id="pad-clear">Clear</button>
           </div>
           <div class="typed" id="typed" hidden><span id="typed-preview" class="typed-sig"></span></div>
-
-          <label class="check"><input type="checkbox" id="agree" data-testid="agree"> <span>I accept this quote, the total shown and the terms.</span></label>
+          <label class="check"><input type="checkbox" id="agree" data-testid="agree"><span class="box"><i data-icon="check"></i></span><span>I accept this quote, the total shown and the terms.</span></label>
           <p class="error" id="sign-error" role="alert"></p>
-          <button class="btn btn-hivis btn-block btn-big" type="submit" id="accept" data-testid="accept">Approve quote</button>
-          <p class="notice" id="notice"><b>Simple acceptance record.</b> Your name, signature and the time are saved with this quote on this device. This is not a certified e-signature service.</p>
+          <button class="btn btn-primary btn-lg btn-block" type="submit" id="accept" data-testid="accept">Approve quote</button>
+          <p class="notice" id="notice"><i data-icon="info"></i><span><b>Simple acceptance record.</b> Your name, signature and the time are saved with this quote on this device. This is not a certified e-signature service.</span></p>
         </form>
 
-        <div class="card done-card" id="done" hidden>
-          <div class="done-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6 11-11-1.4-1.4z"/></svg></div>
-          <h2 data-testid="approved-title">Approved</h2>
-          <p class="done-stamp" id="done-stamp" data-testid="done-stamp"></p>
-          <p class="done-total" id="done-total"></p>
-          <button class="btn btn-green btn-block btn-big" type="button" id="download-signed" data-testid="approve-download-signed">Download signed PDF</button>
-          <a class="btn btn-outline btn-block" href="/" id="back">Back to Quote Builder</a>
-          <p class="notice">Simple acceptance record kept on this device. Not a certified e-signature service.</p>
-        </div>
-      </section>
+        <section class="done-card pane" id="done" hidden>
+          <div class="done-head">
+            <span class="done-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <h1 class="h1 fade-up d1" data-testid="approved-title">Quote approved</h1>
+            <p class="lead fade-up d2" id="done-lead"></p>
+            <p class="sr" id="done-stamp" data-testid="done-stamp"></p>
+          </div>
+          <section class="total-card receipt fade-up d3" aria-label="Approval receipt">
+            <span class="total-label">Accepted total</span>
+            <output class="total-amt num" id="done-total"></output>
+            <dl class="sum">
+              <div><dt>Quote</dt><dd class="num" id="r-number"></dd></div>
+              <div><dt>Job</dt><dd id="r-job"></dd></div>
+              <div><dt>Signed by</dt><dd id="r-signer"></dd></div>
+              <div><dt>Approved</dt><dd class="num" id="r-stamp"></dd></div>
+            </dl>
+            <div class="receipt-sig"><img id="r-sig" alt="Customer signature" hidden></div>
+          </section>
+          <button class="btn btn-primary btn-lg btn-block fade-up d4" type="button" id="download-signed" data-testid="approve-download-signed"><i data-icon="download"></i>Download signed PDF</button>
+          <a class="btn btn-secondary btn-block btn-md fade-up d4" href="/" id="back">Back to Quote Builder</a>
+          <p class="notice fade-up d4"><i data-icon="info"></i><span><b>Simple acceptance record</b> kept on this device. Not a certified e-signature service.</span></p>
+        </section>
+      </div>
     </div>
   </main>
 </body>

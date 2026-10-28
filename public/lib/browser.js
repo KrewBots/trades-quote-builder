@@ -107,7 +107,7 @@ export class SignaturePad {
   paint(ctx, w, h, lineWidth) {
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.strokeStyle = '#13233f';
+    ctx.strokeStyle = '#1c1a17';
     ctx.lineWidth = lineWidth;
     for (const s of this.strokes) {
       if (!s.length) continue;
@@ -127,7 +127,7 @@ export class SignaturePad {
   redraw() {
     const { width: w, height: h } = this.canvas;
     this.ctx.clearRect(0, 0, w, h);
-    this.paint(this.ctx, w, h, 2.6 * (this.scale || 1));
+    this.paint(this.ctx, w, h, 2.25 * (this.scale || 1));
   }
 
   /** White-backed JPEG of the signature at a fixed export size. */
@@ -159,7 +159,7 @@ export async function typedSignatureJpeg(name, width = 900, height = 260) {
     size -= 6;
     setFont();
   }
-  ctx.fillStyle = '#13233f';
+  ctx.fillStyle = '#1c1a17';
   ctx.textBaseline = 'middle';
   ctx.fillText(name, 30, height / 2 + 6);
   return c.toDataURL('image/jpeg', 0.92);

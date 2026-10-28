@@ -99,7 +99,7 @@ if this server is reachable from their device; public hosting is out of scope.
   email preview is a separate sandboxed document with no scripts at all.
 - State-changing API calls reject cross-site requests; owner endpoints need the
   per-quote owner key the builder received when it first emailed the quote.
-- Fonts (Barlow, Barlow Condensed, Caveat; SIL OFL, licences in
+- Fonts (Instrument Sans, Caveat; SIL OFL, licences in
   `public/fonts/`, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)) are
   bundled. Nothing loads from a CDN. No analytics or tracking.
 - Don't put a normal instance on the public internet. For a public demo, use

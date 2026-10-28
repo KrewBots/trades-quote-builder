@@ -88,13 +88,13 @@ test('quote PDF contains the business, client, every line and the exact totals',
   const s = assertValidPdf(bytes);
   assert.equal(filename, 'Q-1001-Jordan-Rivera.pdf');
   assert.equal(money(totals.total), '$2,612.45');
-  for (const t of ['QUOTE', 'Brightline Plumbing & Electric', 'Lic. #PLB-000000 \\(sample\\)', 'Jordan Rivera', 'Q-1001', 'Valid until',
-    'TOTAL', money(totals.total), money(totals.subtotal), money(totals.tax), 'Tax \\(8.25%\\)', 'Customer signature', 'Page 1 of 1']) {
+  for (const t of ['Quote', 'Brightline Plumbing & Electric', 'Lic. #PLB-000000 \\(sample\\)', 'Jordan Rivera', 'Q-1001', 'Valid until',
+    'Total', money(totals.total), money(totals.subtotal), money(totals.tax), 'Tax \\(8.25%\\)', 'Customer signature', 'Page 1 of 1']) {
     assert.ok((t.startsWith('Page') ? s.includes(`${t})`) : s.includes(`(${t})`)), `PDF shows ${t}`);
   }
   for (const it of q.items) assert.ok(s.includes(`(${it.name})`), it.name);
   assert.match(s, /\/Subtype \/Image/, 'logo embedded');
-  assert.ok(!s.includes('APPROVED QUOTE'));
+  assert.ok(!s.includes('(Approved quote)'));
 });
 
 test('signed quote PDF shows the acceptance record, signature and notice', () => {
@@ -104,7 +104,7 @@ test('signed quote PDF shows the acceptance record, signature and notice', () =>
   const { bytes, filename } = buildQuotePdf({ quote: q, business: SAMPLE_BUSINESS });
   const s = assertValidPdf(bytes);
   assert.equal(filename, 'Q-1001-Jordan-Rivera-signed.pdf');
-  assert.ok(s.includes('(APPROVED QUOTE)'));
+  assert.ok(s.includes('(Approved quote)'));
   assert.ok(s.includes('(Approved)'));
   assert.ok(s.includes('(Accepted total: $2,612.45)'));
   assert.ok(s.includes('(Oct 28, 2026'), 'timestamp');

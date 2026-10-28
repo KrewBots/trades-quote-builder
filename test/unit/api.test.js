@@ -114,7 +114,7 @@ test('email -> review link -> approve: status flips, follow-ups stop, signed PDF
 
   const pdf = await get(`/api/review/${pid}/${token}/pdf`);
   assert.equal(pdf.headers.get('content-type'), 'application/pdf');
-  assert.ok((await pdf.text()).includes('(APPROVED QUOTE)'));
+  assert.ok((await pdf.text()).includes('(Approved quote)'));
 });
 
 test('follow-ups fire on schedule for an unapproved quote, then stop on decline', async () => {

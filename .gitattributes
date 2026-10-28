@@ -1,6 +1,7 @@
 * text=auto eol=lf
 *.csv -text
 *.ttf binary
+*.woff2 binary
 *.png binary
 *.pdf binary
 *.jpg binary

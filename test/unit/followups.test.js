@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { followUpPlan, normaliseDays, newFollowUps, stopFollowUps, DAY, DEFAULT_DAYS } from '../../server/followups.js';
+import { followUpPlan, followUpSchedule, normaliseDays, newFollowUps, stopFollowUps, DAY, DEFAULT_DAYS } from '../../server/followups.js';
 
 const T0 = Date.parse('2026-10-28T15:00:00Z');
 const rec = (over = {}) => ({
@@ -97,4 +97,19 @@ test('editing days after a reminder was sent keeps the sent one and schedules th
   const p = followUpPlan(r, at(2, 2));
   assert.equal(p.next.day, 3);
   assert.equal(followUpPlan(r, at(3)).due.day, 3);
+});
+
+test('followUpSchedule: sent, next and later reminders with real times; none past expiry; none once stopped', () => {
+  const r = rec({ expiresAt: new Date(T0 + 4 * DAY).toISOString(), followUps: newFollowUps({ days: [2, 3, 5] }) });
+  let s = followUpSchedule(r, at(0, 1));
+  assert.deepEqual(s.map((x) => [x.n, x.state, x.at]), [
+    [1, 'next', new Date(at(2)).toISOString()],
+    [2, 'scheduled', new Date(at(3)).toISOString()],
+  ], 'day 5 is past the 4-day expiry');
+  r.followUps.sent.push({ day: 2, n: 1, at: new Date(at(2, 1)).toISOString() });
+  s = followUpSchedule(r, at(2, 2));
+  assert.deepEqual(s.map((x) => [x.n, x.state]), [[1, 'sent'], [2, 'next']]);
+  assert.equal(s[0].at, new Date(at(2, 1)).toISOString(), 'sent reminder keeps its real send time');
+  r.status = 'approved';
+  assert.deepEqual(followUpSchedule(r, at(2, 3)).map((x) => x.state), ['sent']);
 });

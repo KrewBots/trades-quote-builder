@@ -59,3 +59,23 @@ export function stopFollowUps(record, reason, nowIso) {
     record.followUps.stopReason = reason;
   }
 }
+
+/**
+ * Every reminder on a quote's schedule, oldest first, for the builder's timeline:
+ * sent ones with the time they went out, then the pending ones with the time
+ * followUpPlan will send them ('next' is the first). Pending reminders are left
+ * out once reminders have stopped, and never fall at or after the expiry.
+ */
+export function followUpSchedule(record, now) {
+  const f = record.followUps || newFollowUps({ enabled: false });
+  const plan = followUpPlan(record, now);
+  const sentAt = Date.parse(record.sentAt);
+  const expires = Date.parse(record.expiresAt);
+  const sent = f.sent.map((s) => ({ day: s.day, n: s.n, at: Date.parse(s.at), state: 'sent' }));
+  const done = new Set([...f.sent.map((s) => s.day), ...f.skipped]);
+  const pending = plan.stopped ? [] : f.days
+    .map((day, i) => ({ day, n: i + 1, at: sentAt + day * DAY }))
+    .filter((s) => s.at < expires && !done.has(s.day))
+    .map((s) => ({ ...s, state: plan.next && s.day === plan.next.day ? 'next' : 'scheduled' }));
+  return [...sent, ...pending].sort((a, b) => a.at - b.at).map((s) => ({ ...s, at: new Date(s.at).toISOString() }));
+}
